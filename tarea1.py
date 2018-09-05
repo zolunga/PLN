@@ -4,6 +4,9 @@ from bs4 import BeautifulSoup
 from nltk import word_tokenize
 from nltk.corpus import PlaintextCorpusReader
 import re
+import operator
+from decimal import Decimal
+
 
 
 #f=open('e960401.htm', encoding='latin-1')
@@ -25,9 +28,9 @@ import re
 #f.write(tS)
 #f.close()
 
-def getCorpus(NameDoc):
+def getCorpus(NameDoc, encode):
     ''' Obtiene los tokens del texto y elimina algunos caracteres'''
-    f=open(NameDoc, encoding='latin-1')
+    f=open(NameDoc, encoding=encode)
     t=f.read()
     f.close()
     soup = BeautifulSoup(t, 'lxml')
@@ -41,7 +44,7 @@ def getCorpus(NameDoc):
     tS = tS.lower()
     tokens =  nltk.Text(nltk.word_tokenize(tS))
     return tokens
-
+  
 def hasNumber(Str):
     ''' retorna true si encuentra un numero en la cadena '''
     return any(char.isdigit() for char in Str)
@@ -80,23 +83,31 @@ def cleanTokens2(vocabulario):
     return vl
 
 def cleanTokens3(vocabulario):
-    '''Solo limpia el vocabulario'''
+    '''Solo limpia el vocabulario, usa una expresion regular para validar letra
+    por letra y evitar que se ingresen caracteres no deseados o deconocidos en el corpus'''
     vl = []#voc limp
     palabra_limpia = "";
     for word in vocabulario:
         palabra_limpia = ""
         for letter in word:
-            if re.match(r'[a-záéíóú]', letter):
+            if re.match(r'[a-záéíóúñ]', letter):
                 palabra_limpia += letter
-        if palabra_limpia != "":
+        if palabra_limpia != "" and "www" not in palabra_limpia and "http" not in palabra_limpia:
             vl.append(palabra_limpia)
     #print(vl)
     return vl
 
+def deleteStopWords(vocabulario,sw):
+    new_v = []
+    for word in vocabulario:
+        if word not in sw:
+            new_v.append(word)            
+    return new_v
+
 def getContext(vocabulario, palabra):
     '''
-    Recibe el bocabulario completo y la palabra que va a buscar, returna el 
-    vector
+    Recibe el bocabulario completo y la palabra que va a buscar, retorna una lista
+    de listas con el contexto del elemento en el texto
     '''
     ran = 4
     Contexs = []
@@ -108,6 +119,8 @@ def getContext(vocabulario, palabra):
                     temp.append(vocabulario[i])
             Contexs.append(temp)
             temp = []
+    print("Lista de contexto de ", palabra)
+    print(Contexs)
     return Contexs
 
 
@@ -138,32 +151,51 @@ def calcAngulo(v1, v2):
     numerador = 0
     for i in range (0, len(v1)):
         numerador += (v1[i] * v2[i])
-        #print(v1[i] * v2[i])
-        #print( numerador )
     den1 = calcVectorSize(v1)
     den2 = calcVectorSize(v2)
-    print(numerador)
-    print(den1 * den2)
+    print("numerador", numerador)
+    print("den", (den1 * den2) )
     res = numerador / (den1 * den2)
-    return math.acos(res)
+    print("res", res)
+    res = math.acos(res)
+    return res
 
-texto = getCorpus('e960401.htm')
-vocabulario = sorted(set(texto))
+def conPalabra(vocabulario):
+    diccionario = {}
+    for word in set(vocabulario):
+        diccionario[word] = 0
+    for word in vocabulario:
+        diccionario[word] += 1
+    sorted_d = sorted(diccionario.items(), key=operator.itemgetter(1))
+    return sorted_d
+
+texto = getCorpus('e960401.htm', 'latin-1')
+textoSW = getCorpus('stopwords_es.txt', 'utf-8') 
+#vocabulario = sorted(set(texto))
+stopwords = cleanTokens3(textoSW)
 vocabulario_limpio = cleanTokens3(texto)
-#print(len(vocabulario_limpio))
+print("antes---",len(vocabulario_limpio)) 
+vocabulario_limpio = deleteStopWords(vocabulario_limpio, stopwords)
+print("despues---",len(vocabulario_limpio))
+
+print("--------------------------------------------------------------------")
 con_empresa = getContext(vocabulario_limpio, "empresa")
 vector_empresa = createVector(vocabulario_limpio, con_empresa)
-size_vector_empresa = calcVectorSize(vector_empresa)
 
+print("--------------------------------------------------------------------")
 con_agua = getContext(vocabulario_limpio, "agua")
 vector_agua = createVector(vocabulario_limpio, con_agua)
-size_vector_agua = calcVectorSize(vector_agua)
 
-
+print("--------------------------------------------------------------------")
 con_compania = getContext(vocabulario_limpio, "compañía")
 vector_compania = createVector(vocabulario_limpio, con_compania)
 
 
-print(calcAngulo(vector_agua, vector_empresa))
+print("--------------------------------------------------------------------")
+print("similitud entre agua y empresa:", calcAngulo(vector_agua, vector_empresa))
+print("similitud entre empresa y compania:", calcAngulo(vector_empresa, vector_compania))
 
+conteo_palabras = conPalabra(vocabulario_limpio)
+print("Palabras mas comunes")
+print(conteo_palabras[len(conteo_palabras)-10:len(conteo_palabras)])
 #print(vector_empresa)
