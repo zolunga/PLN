@@ -120,7 +120,7 @@ def createVector(vocabulario, contx):
     vector = []
     for x in range(0, len(vocabulario)):
         for i in range(0, len(list_pal_con)):
-            if vocabulario[x] in list_pal_con[i]:
+            if vocabulario[x] == list_pal_con[i]:
                 cont+=1
         vector.append(cont)
         cont = 0
@@ -136,15 +136,16 @@ def calcVectorSize(vector):
         
 def calcAngulo(v1, v2):
     numerador = 0
-    for i in range (0, len(v1) ):
+    for i in range (0, len(v1)):
         numerador += (v1[i] * v2[i])
         #print(v1[i] * v2[i])
         #print( numerador )
     den1 = calcVectorSize(v1)
     den2 = calcVectorSize(v2)
-    #print(numerador)
-    #print(den1 * den2)
-    return numerador / den1 * den2
+    print(numerador)
+    print(den1 * den2)
+    res = numerador / (den1 * den2)
+    return math.acos(res)
 
 texto = getCorpus('e960401.htm')
 vocabulario = sorted(set(texto))
@@ -158,7 +159,11 @@ con_agua = getContext(vocabulario_limpio, "agua")
 vector_agua = createVector(vocabulario_limpio, con_agua)
 size_vector_agua = calcVectorSize(vector_agua)
 
+
+con_compania = getContext(vocabulario_limpio, "compañía")
+vector_compania = createVector(vocabulario_limpio, con_compania)
+
+
 print(calcAngulo(vector_agua, vector_empresa))
 
-#print(vector_empresa)
 #print(vector_empresa)
