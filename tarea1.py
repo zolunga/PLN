@@ -140,6 +140,11 @@ def createVector(vocabulario, contx):
     
     return vector
 
+def producto_punto(v1, v2):
+    res = 0
+    for i in range(0, len(v1)):
+        res += (v1[i]*v2[i])
+    return res
 
 def calcVectorSize(vector):
     sizeV = 0
@@ -148,26 +153,26 @@ def calcVectorSize(vector):
     return math.sqrt(sizeV)
         
 def calcAngulo(v1, v2):
-    numerador = 0
-    for i in range (0, len(v1)):
-        numerador += (v1[i] * v2[i])
+    numerador = producto_punto(v1,v2)
     den1 = calcVectorSize(v1)
     den2 = calcVectorSize(v2)
-    print("numerador", numerador)
-    print("den", (den1 * den2) )
     res = numerador / (den1 * den2)
-    print("res", res)
     res = math.acos(res)
     return res
 
 def conPalabra(vocabulario):
     diccionario = {}
+    total = len(vocabulario)
     for word in set(vocabulario):
-        diccionario[word] = 0
+        diccionario[word] = [0,0]
     for word in vocabulario:
-        diccionario[word] += 1
-    sorted_d = sorted(diccionario.items(), key=operator.itemgetter(1))
-    return sorted_d
+        diccionario[word][0] += 1
+    for word in diccionario:
+        diccionario[word][1] = diccionario[word][0] / total  
+    
+    #sorted_d = sorted(diccionario.items(), key=operator.itemgetter(1))
+    
+    return diccionario
 
 texto = getCorpus('e960401.htm', 'latin-1')
 textoSW = getCorpus('stopwords_es.txt', 'utf-8') 
@@ -197,5 +202,5 @@ print("similitud entre empresa y compania:", calcAngulo(vector_empresa, vector_c
 
 conteo_palabras = conPalabra(vocabulario_limpio)
 print("Palabras mas comunes")
-print(conteo_palabras[len(conteo_palabras)-10:len(conteo_palabras)])
+#print(conteo_palabras)
 #print(vector_empresa)
