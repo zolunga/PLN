@@ -221,9 +221,8 @@ doc = open(path,'w')
 frecuencia_tem = 0
 for word in set(vocabulario_limpio):
     ContextTem = getContext(vocabulario_limpio,word)
-    frecuencia_tem = OcurrenciaPalabra(ContextTem, "compañía")
+    frecuencia_tem = OcurrenciaPalabra(con_compania, word)
     if frecuencia_tem != 0:
-        print("Conteo")
         vector_temporal = createVector (vocabulario_limpio, ContextTem)
         dic_similitud[word] = (frecuencia_tem / calcVectorSize(vector_temporal) )
     else:
@@ -231,3 +230,9 @@ for word in set(vocabulario_limpio):
 sorted_d = sorted(dic_similitud.items(), key=operator.itemgetter(1))
 print(sorted_d)
 
+
+#para cada elemento del vecor se va a calcular su BM25(k = 1.2) y multiplicar por 
+# el idf de la siguiente
+''' 
+(BM25)y = [(k+1)x / (x+k)] * idf(palabra2)
+'''
