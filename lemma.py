@@ -1,39 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
+analiza el texto que contiene las lematizaciones, despues procede a eliminar los
+caracteres no deseados para el analisis, luego atraves del diccionario de lemas
+coloca su forma primal de las palabras, al final se eliminan las stopwords
+dejando un texto limpio para proceder a analisis
 
-This is a temporary script file.
 """
 
 import nltk
-import math
 from bs4 import BeautifulSoup
 from nltk import word_tokenize
 from nltk.corpus import PlaintextCorpusReader
 import re
-import operator
-from decimal import Decimal
-import time
-
-
-#f=open('e960401.htm', encoding='latin-1')
-#t=f.read()
-#f.close()
- 
-#soup = BeautifulSoup(t, 'lxml')
-#tS = soup.get_text()
-#tS = tS.replace('\x97', ' ')
-#tokens =  word_tokenize(tS)
-#tokens_nltk = nltk.Text(tokens)
-#print("Cantidad de palabras del texto:",len(tokens_nltk))
-#print("Palabras diferentes:",len(set(tokens)) )
-#print("---------Palbaras similares---------")
-#print(tokens_nltk.similar("empresa"))
-#print("------------------------------------")
-#temporal = tokens_nltk.similar("empresa")
-#f=open('e960401.txt', 'w')
-#f.write(tS)
-#f.close()
 
 def getCorpus(NameDoc, encode):
     ''' Obtiene los tokens del texto y elimina algunos caracteres'''
@@ -72,7 +50,7 @@ def cleanTokens3(vocabulario):
     return Arr
 
 def Lemmas(vocabulario):
-    print("------------------------------------------------------------------------------------------------------------------------lematizando")
+    print("Lematizando...")
     palabra_lemmatizada = ""
     listEscritura = []
     for word in vocabulario:
@@ -91,9 +69,18 @@ def Lemmas(vocabulario):
                         palabra_lemmatizada = dic_temporal[key][0]
                         break
         listEscritura.append(palabra_lemmatizada)
-    file=open("lemma.txt", "w")
-    file.write(" ".join(listEscritura))
-    file.close()
+    return listEscritura
+    
+
+def deleteStopWords(vocabulario):
+    textoSW = getCorpus('stopwords_es.txt', 'utf-8') 
+    sw = cleanTokens3(textoSW)
+    new_v = []
+    for word in vocabulario:
+        if word not in sw:
+            new_v.append(word)            
+    return new_v
+
             
 
 file=open("generate.txt", encoding="latin-1")
@@ -124,4 +111,9 @@ for line in lin:
                 print(x)
 texto = getCorpus('e960401.htm', 'latin-1')
 texto2 = cleanTokens3(texto)
-Lemmas(texto2)
+texto3 = Lemmas(texto2)
+texto4 = deleteStopWords(texto3)
+
+file=open("lemma.txt", "w")
+file.write(" ".join(texto4))
+file.close()
