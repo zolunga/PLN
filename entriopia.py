@@ -73,6 +73,14 @@ def conPalabra(vocabulario):
     #sorted_d = sorted(diccionario.items(), key=operator.itemgetter(1))
     return diccionario
 
+def ConditionalProb(prob1, prob2):
+    p_xy = (prob1 + prob2) / len(Texto)
+    p_x = prob1
+    p_y = prob2
+    return (p_xy * p_x)/(p_y)
+
+def H(p1,p2,p3,p4):
+    return -p1*(np.log2(p2) -p3*(np.log2(p4))
 
 Texto = getCorpus("lemma.txt","latin-1")
 Context_dictionary = {}
@@ -81,6 +89,7 @@ Prob_dictionary = {}
 print("Diccionario de probabilidades")
 Prob_dictionary = conPalabra(Texto)
 print(Prob_dictionary)
+H((ConditionalProb(Prob_dictionary['empresa'][1],Prob_dictionary['empresa'][2]) ), (ConditionalProb(Prob_dictionary['empresa'][1],Prob_dictionary['empresa'][2])) , (ConditionalProb(Prob_dictionary['empresa'][1],Prob_dictionary['empresa'][1])) ,(ConditionalProb(Prob_dictionary['empresa'][1],Prob_dictionary['empresa'][1])))
 
 '''
 print("Iniciando Diccionario de contextos--", len(set(Texto)) )
