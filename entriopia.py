@@ -59,14 +59,33 @@ def Similarity_V(DictionaryV, word):
         Dictionary_sim[key] = np.arccos(np.dot(VectorWord, v)/prod)
     return Dictionary_sim
 
+def conPalabra(vocabulario):
+    diccionario = {}
+    total = len(vocabulario)
+    for word in set(vocabulario):
+        diccionario[word] = [0,0,0] #1 cantiddad, 2 probabilidad, 3 1 - prob
+    for word in vocabulario:
+        diccionario[word][0] += 1
+    for word in diccionario:
+        diccionario[word][1] = diccionario[word][0] / total 
+        diccionario[word][2] = 1 - diccionario[word][1] 
+    
+    #sorted_d = sorted(diccionario.items(), key=operator.itemgetter(1))
+    return diccionario
+
 
 Texto = getCorpus("lemma.txt","latin-1")
 Context_dictionary = {}
 Vector_dictionary = {}
+Prob_dictionary = {}
+print("Diccionario de probabilidades")
+Prob_dictionary = conPalabra(Texto)
+print(Prob_dictionary)
+
+'''
 print("Iniciando Diccionario de contextos--", len(set(Texto)) )
 for word in set(Texto):
     Context_dictionary[word] = getContext(Texto, word)
-
 print("Iniciando Diccionario de vectores--")
 for key in Context_dictionary:
     WordsContext = Context_dictionary[key]
@@ -79,5 +98,5 @@ for key in Context_dictionary:
 print("Iniciando Calculo de similitud")
 vector = Similarity_V(Vector_dictionary, "empresa")
 print(vector)
-
+'''
 
