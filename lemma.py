@@ -11,7 +11,9 @@ import nltk
 from bs4 import BeautifulSoup
 from nltk import word_tokenize
 from nltk.corpus import PlaintextCorpusReader
+import time
 import re
+import unicodedata
 
 def getCorpus(NameDoc, encode):
     ''' Obtiene los tokens del texto y elimina algunos caracteres'''
@@ -54,20 +56,19 @@ def Lemmas(vocabulario):
     palabra_lemmatizada = ""
     listEscritura = []
     for word in vocabulario:
-        palabra_lemmatizada = word
+        palabra_lemmatizada = "(" +word + ")  \n"
         dic_temporal = dic_lemmas[word[0]]
         for key in dic_temporal:
             if word.startswith(key):
-                for i in range(0,len(dic_temporal[key])):
-                    if(word == dic_temporal[key][0]):
-                        palabra_lemmatizada = dic_temporal[key][0]
+                for i in range(0,len(dic_temporal[key]["Terminaciones"])):
+                    if(word == dic_temporal[key]["Palabra"]):
+                        palabra_lemmatizada = "(" + dic_temporal[key]["Palabra"]+ " | " + dic_temporal[key]["Classificiacion"] +") \n "
                         break
-                    if dic_temporal[key][i] == "":
-                        continue
-                    stringtem = key + dic_temporal[key][i]
-                    if(word == stringtem):
-                        palabra_lemmatizada = dic_temporal[key][0]
-                        break
+                    if len(dic_temporal[key]["Terminaciones"]) > 0:
+                        stringtem = key + dic_temporal[key]["Terminaciones"][i]
+                        if(word == stringtem):
+                            palabra_lemmatizada = "(" + dic_temporal[key]["Palabra"]+ " | " + dic_temporal[key]["Classificiacion"] +") \n "
+                            break
         listEscritura.append(palabra_lemmatizada)
     return listEscritura
     
@@ -90,29 +91,37 @@ file.close()
 lin = temp.split("\n")
 lin = lin[19:]
 dic_lemmas = {}
+LemmaAnterior = ""
 for line in lin:
     lineSplit = line.split(" ")
+    #print(lineSplit)
+    classificacion = [wrd for wrd in lineSplit if (wrd != '' and wrd[0].isupper()) ]
     if len(lineSplit) > 1:
         lemma = lineSplit[0]
-        x = lemma.find("#")
-        #print(lemma[0])
-        if lemma[0] not in dic_lemmas:
+        x = lemma.find("#") #numero de indice del hash dentro de la linea
+        if lemma[0] not in dic_lemmas: #vocales {a:....}
             dic_lemmas[lemma[0]] = {}
-        if lemma[:x] in dic_lemmas[lemma[0]]:
-            dic_lemmas[lemma[0]][lemma[:x]].append(lemma[x+1:])
+        if lemma[:x] in dic_lemmas[lemma[0]] and lemma[x+1:] != '':
+            dic_lemmas[lemma[0]][lemma[:x]]["Terminaciones"].append(lemma[x+1:])
         else:
-            dic_lemmas[lemma[0]][lemma[:x]] = []
+            dic_lemmas[lemma[0]][lemma[:x]] = {}
+            dic_lemmas[lemma[0]][lemma[:x]]["Terminaciones"] = []
+            dic_lemmas[lemma[0]][lemma[:x]]["Classificiacion"] = classificacion[0].lower()
             try:
                 if lineSplit[-1] != "":
-                    dic_lemmas[lemma[0]][lemma[:x]].append(lineSplit[-1])
+                    dic_lemmas[lemma[0]][lemma[:x]]["Palabra"] = lineSplit[-1]
                 else:
-                    dic_lemmas[lemma[0]][lemma[:x]].append(lineSplit[-2])
+                    dic_lemmas[lemma[0]][lemma[:x]]["Palabra"] = lineSplit[-2]
             except IndexError:
                 print(x)
+        #print(lemma[0],":",dic_lemmas[lemma[0]][lemma[:x]])
+        
 texto = getCorpus('e960401.htm', 'latin-1')
 texto2 = cleanTokens3(texto)
-texto3 = Lemmas(texto2)
-texto4 = deleteStopWords(texto3)
+#print(dic_lemmas["a"]["autoridad"])
+texto3 = deleteStopWords(texto2)
+texto4 = Lemmas(texto3)
+
 
 file=open("lemma.txt", "w")
 file.write(" ".join(texto4))
