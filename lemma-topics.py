@@ -93,34 +93,46 @@ def Lemmas(vocabulario):
         dic_temporal = dic_lemmas[word[0]]
         for key in dic_temporal:
             if word.startswith(key):
+                if(word == dic_temporal[key]["Palabra"]):
+                    palabra_lemmatizada = "(" + dic_temporal[key]["Palabra"]+ " | " + dic_temporal[key]["Classificiacion"] +") \n"
+                    #-------------------sustantivo
+                    if dic_temporal[key]["Classificiacion"].startswith("nc"):
+                        if dic_temporal[key]["Palabra"]  not in dic_sustantivo:
+                            dic_sustantivo[dic_temporal[key]["Palabra"]] = 1
+                        else:
+                            dic_sustantivo[dic_temporal[key]["Palabra"]] += 1
+                    #----------------------------
+                    
                 for i in range(0,len(dic_temporal[key]["Terminaciones"])):
-                    if(word == dic_temporal[key]["Palabra"]):
-                        palabra_lemmatizada = "(" + dic_temporal[key]["Palabra"]+ " | " + dic_temporal[key]["Classificiacion"] +") \n"
-                        #-------------------sustantivo
-                        if dic_temporal[key]["Classificiacion"].startswith("nc"):
-                            if dic_temporal[key]["Palabra"]  not in dic_sustantivo:
-                                dic_sustantivo[dic_temporal[key]["Palabra"]] = 1
-                            else:
-                                dic_sustantivo[dic_temporal[key]["Palabra"]] += 1
-                        #----------------------------
-                        break
                     if len(dic_temporal[key]["Terminaciones"]) > 0:
                         stringtem = key + dic_temporal[key]["Terminaciones"][i]
                         if(word == stringtem):
+                            #-------------------sustantivo
+                            if dic_temporal[key]["Classificiacion"].startswith("nc"):
+                                if dic_temporal[key]["Palabra"]  not in dic_sustantivo:
+                                    dic_sustantivo[dic_temporal[key]["Palabra"]] = 1
+                                else:
+                                    dic_sustantivo[dic_temporal[key]["Palabra"]] += 1
+                            #----------------------------
                             palabra_lemmatizada = "(" + dic_temporal[key]["Palabra"]+ " | " + dic_temporal[key]["Classificiacion"] +") \n"
                             break
         listEscritura.append(palabra_lemmatizada)
-    #dic_sustantivo = sorted(dic_sustantivo.items(), key=operator.itemgetter(1))
     #print(sorted_d)
     FinaldeArticulo = "Sustantivos mas usados: "
     Total = 0
     for key in dic_sustantivo:
         Total += dic_sustantivo[key]
     for key in dic_sustantivo:
+        dic_sustantivo[key] = round( (dic_sustantivo[key] / Total) * 100, 2)
+    dic_sustantivo = sorted(dic_sustantivo.items(), key=operator.itemgetter(1))
+    FinaldeArticulo += str(dic_sustantivo[len(dic_sustantivo)-4:])
+    
+    '''
+    for word in dic_sustantivo:
         if dic_sustantivo[key] > 1:
             porcentaje = round( (dic_sustantivo[key] / Total) * 100, 2)
             FinaldeArticulo += key + ":" + str(porcentaje) + "% ----"
-    
+    '''
     FinaldeArticulo += "\n"
     listEscritura.append(FinaldeArticulo)
     #print(listEscritura)
@@ -187,6 +199,8 @@ for articulo in Articulos:
     textoTemporal = Lemmas(textoTemporal)
     file.write("----------------------------Articulo ----------------------\n")
     file.write(" ".join(textoTemporal))    
+    
+print(dic_lemmas['c']['compañía'])
 #texto = getCorpus('e960401.htm', 'latin-1')
 #texto2 = cleanTokens3(texto)
 #print(dic_lemmas["a"]["autoridad"])
