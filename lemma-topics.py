@@ -21,6 +21,7 @@ from nltk.corpus import PlaintextCorpusReader
 import time
 import re
 import operator
+import numpy as np
 dic_sustantivo = {}
 
 def getCorpus(NameDoc, encode):
@@ -80,11 +81,9 @@ def cleanTokens3(vocabulario):
                 palabra_limpia += letter
         if palabra_limpia != "" and "www" not in palabra_limpia and "http" not in palabra_limpia:
             Arr.append(palabra_limpia)
-    #print("cleanTokens terminado")
-    #time.sleep(2)
     return Arr
 
-def Lemmas(vocabulario):
+def Lemmas(vocabulario, numeroArt, lenArts):
     print("Lematizando...")
     global dic_sustantivo
     palabra_lemmatizada = ""
@@ -100,10 +99,14 @@ def Lemmas(vocabulario):
                     if dic_temporal[key]["Classificiacion"].startswith("nc"):
                         if dic_temporal[key]["Palabra"]  not in dic_sustantivo:
                             dic_sustantivo[dic_temporal[key]["Palabra"]] = {}
-                            dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'] = 1
-                            dic_sustantivo[dic_temporal[key]["Palabra"]]['Articulo'] 
+                            dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'] = []
+                            for i in range(0, lenArts):
+                                dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'].append(0)    
+                            dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'][numeroArt] = 1
+                            dic_sustantivo[dic_temporal[key]["Palabra"]]['Total'] = 1
                         else:
-                            dic_sustantivo[dic_temporal[key]["Palabra"]] += 1
+                            dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'][numeroArt] += 1
+                            dic_sustantivo[dic_temporal[key]["Palabra"]]['Total'] += 1
                     #----------------------------
                     
                 for i in range(0,len(dic_temporal[key]["Terminaciones"])):
@@ -113,9 +116,15 @@ def Lemmas(vocabulario):
                             #-------------------sustantivo
                             if dic_temporal[key]["Classificiacion"].startswith("nc"):
                                 if dic_temporal[key]["Palabra"]  not in dic_sustantivo:
-                                    dic_sustantivo[dic_temporal[key]["Palabra"]] = 1
+                                    dic_sustantivo[dic_temporal[key]["Palabra"]] = {}
+                                    dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'] = []
+                                    for i in range(0, lenArts):
+                                        dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'].append(0)    
+                                    dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'][numeroArt] = 1
+                                    dic_sustantivo[dic_temporal[key]["Palabra"]]['Total'] = 1
                                 else:
-                                    dic_sustantivo[dic_temporal[key]["Palabra"]] += 1
+                                    dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'][numeroArt] += 1
+                                    dic_sustantivo[dic_temporal[key]["Palabra"]]['Total'] += 1
                             #----------------------------
                             palabra_lemmatizada = "(" + dic_temporal[key]["Palabra"]+ " | " + dic_temporal[key]["Classificiacion"] +") \n"
                             break
@@ -185,7 +194,6 @@ for line in lin:
                     dic_lemmas[lemma[0]][lemma[:x]]["Palabra"] = lineSplit[-2]
             except IndexError:
                 print(x)
-        #print(lemma[0],":",dic_lemmas[lemma[0]][lemma[:x]])        
         
 texto = getRawCorpus('e960401.htm', 'latin-1')
 Articulos = getArticles(texto)        
@@ -194,18 +202,22 @@ for i in range(0, len(Articulos)):
     listaPalabrasArt = Articulos[i].split(" ")
     textoTemporal = cleanTokens3(listaPalabrasArt)
     textoTemporal = deleteStopWords(textoTemporal)
-    textoTemporal = Lemmas(textoTemporal)
+    textoTemporal = Lemmas(textoTemporal, i, len(Articulos))
     file.write("----------------------------Articulo ----------------------\n")
     file.write(" ".join(textoTemporal))    
-
-#print(dic_lemmas['m']['millón'])
+file.close()
 Total = 0
 for key in dic_sustantivo:
-    Total += dic_sustantivo[key]
-#for key in dic_sustantivo:
-#    dic_sustantivo[key] = round( (dic_sustantivo[key] / Total) * 100, 2)
-dic_sustantivo = sorted(dic_sustantivo.items(), key=operator.itemgetter(1))
-print(dic_sustantivo)
-    
+    Total += dic_sustantivo[key]['Total']
 
-file.close()
+print(len(dic_sustantivo))
+print ("ar  w1  w2  w3  w4  w5")
+for i in range (0, len(Articulos)):
+    v1 = dic_sustantivo['inmigración']['Conteo'][i]
+    v2 = dic_sustantivo['arquitectura']['Conteo'][i]
+    v3 = dic_sustantivo['internet']['Conteo'][i]
+    v4 = dic_sustantivo['astronauta']['Conteo'][i]
+    v5 = dic_sustantivo['inflación']['Conteo'][i]
+    print(i, " ",v1, " ", v2, " ", v3, " ", v4, " ", v5)
+
+
