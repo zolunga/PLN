@@ -21,6 +21,7 @@ from nltk.corpus import PlaintextCorpusReader
 import time
 import re
 import operator
+dic_sustantivo = {}
 
 def getCorpus(NameDoc, encode):
     ''' Obtiene los tokens del texto y elimina algunos caracteres'''
@@ -85,7 +86,7 @@ def cleanTokens3(vocabulario):
 
 def Lemmas(vocabulario):
     print("Lematizando...")
-    dic_sustantivo = {}
+    global dic_sustantivo
     palabra_lemmatizada = ""
     listEscritura = []
     for word in vocabulario:
@@ -98,7 +99,9 @@ def Lemmas(vocabulario):
                     #-------------------sustantivo
                     if dic_temporal[key]["Classificiacion"].startswith("nc"):
                         if dic_temporal[key]["Palabra"]  not in dic_sustantivo:
-                            dic_sustantivo[dic_temporal[key]["Palabra"]] = 1
+                            dic_sustantivo[dic_temporal[key]["Palabra"]] = {}
+                            dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'] = 1
+                            dic_sustantivo[dic_temporal[key]["Palabra"]]['Articulo'] 
                         else:
                             dic_sustantivo[dic_temporal[key]["Palabra"]] += 1
                     #----------------------------
@@ -118,14 +121,14 @@ def Lemmas(vocabulario):
                             break
         listEscritura.append(palabra_lemmatizada)
     #print(sorted_d)
-    FinaldeArticulo = "Sustantivos mas usados: "
-    Total = 0
-    for key in dic_sustantivo:
-        Total += dic_sustantivo[key]
-    for key in dic_sustantivo:
-        dic_sustantivo[key] = round( (dic_sustantivo[key] / Total) * 100, 2)
-    dic_sustantivo = sorted(dic_sustantivo.items(), key=operator.itemgetter(1))
-    FinaldeArticulo += str(dic_sustantivo[len(dic_sustantivo)-4:])
+    #FinaldeArticulo = "Sustantivos mas usados: "
+    #Total = 0
+    #for key in dic_sustantivo:
+    #    Total += dic_sustantivo[key]
+    #for key in dic_sustantivo:
+    #    dic_sustantivo[key] = round( (dic_sustantivo[key] / Total) * 100, 2)
+    #dic_sustantivo = sorted(dic_sustantivo.items(), key=operator.itemgetter(1))
+    #FinaldeArticulo += str(dic_sustantivo[len(dic_sustantivo)-4:])
     
     '''
     for word in dic_sustantivo:
@@ -133,8 +136,8 @@ def Lemmas(vocabulario):
             porcentaje = round( (dic_sustantivo[key] / Total) * 100, 2)
             FinaldeArticulo += key + ":" + str(porcentaje) + "% ----"
     '''
-    FinaldeArticulo += "\n"
-    listEscritura.append(FinaldeArticulo)
+    #FinaldeArticulo += "\n"
+    #listEscritura.append(FinaldeArticulo)
     #print(listEscritura)
     #time.sleep(3)
     return listEscritura
@@ -174,6 +177,7 @@ for line in lin:
             dic_lemmas[lemma[0]][lemma[:x]] = {}
             dic_lemmas[lemma[0]][lemma[:x]]["Terminaciones"] = []
             dic_lemmas[lemma[0]][lemma[:x]]["Classificiacion"] = classificacion[0].lower()
+            dic_lemmas[lemma[0]][lemma[:x]]["Terminaciones"].append(lemma[x+1:])
             try:
                 if lineSplit[-1] != "":
                     dic_lemmas[lemma[0]][lemma[:x]]["Palabra"] = lineSplit[-1]
@@ -181,32 +185,27 @@ for line in lin:
                     dic_lemmas[lemma[0]][lemma[:x]]["Palabra"] = lineSplit[-2]
             except IndexError:
                 print(x)
-        #print(lemma[0],":",dic_lemmas[lemma[0]][lemma[:x]])
-
-def AnalizarSustantivos(dictionario):
-    for key in dictionario:
-        dictionario[key][""]
-        
+        #print(lemma[0],":",dic_lemmas[lemma[0]][lemma[:x]])        
         
 texto = getRawCorpus('e960401.htm', 'latin-1')
 Articulos = getArticles(texto)        
 file=open("lemma.txt", "w")
-
-for articulo in Articulos:
-    listaPalabrasArt = articulo.split(" ")
+for i in range(0, len(Articulos)):
+    listaPalabrasArt = Articulos[i].split(" ")
     textoTemporal = cleanTokens3(listaPalabrasArt)
     textoTemporal = deleteStopWords(textoTemporal)
     textoTemporal = Lemmas(textoTemporal)
     file.write("----------------------------Articulo ----------------------\n")
     file.write(" ".join(textoTemporal))    
+
+#print(dic_lemmas['m']['millón'])
+Total = 0
+for key in dic_sustantivo:
+    Total += dic_sustantivo[key]
+#for key in dic_sustantivo:
+#    dic_sustantivo[key] = round( (dic_sustantivo[key] / Total) * 100, 2)
+dic_sustantivo = sorted(dic_sustantivo.items(), key=operator.itemgetter(1))
+print(dic_sustantivo)
     
-print(dic_lemmas['c']['compañía'])
-#texto = getCorpus('e960401.htm', 'latin-1')
-#texto2 = cleanTokens3(texto)
-#print(dic_lemmas["a"]["autoridad"])
-#texto3 = deleteStopWords(texto2)
-#texto4 = Lemmas(texto3)
-
-
 
 file.close()
