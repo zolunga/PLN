@@ -6,6 +6,7 @@ Created on Tue Nov 13 15:11:19 2018
 @author: alan
 """
 import mord as m
+import numpy as np
 from xml.dom import minidom
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 def getRankXML(rawXML, nameXML):
@@ -55,7 +56,7 @@ for i in range(2,4280):  #4280
     if rawXML == False or rawText == False:
         fails += 1
         continue
-    categories.append(getRankXML(rawXML, path1))
+    categories.append(int(getRankXML(rawXML, path1)))
     text.append(getLemmas(rawText))      
 
 print("Total de errores:", fails)
@@ -67,4 +68,4 @@ x_tdidf = tfidfOBJ.fit_transform(x_count)
 
 
 mordObj = m.LogisticIT()
-mordObj.fit(x_tdidf, categories)
+mordObj.fit(x_tdidf, np.array(categories))
