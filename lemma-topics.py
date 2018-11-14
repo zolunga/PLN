@@ -86,6 +86,7 @@ def cleanTokens3(vocabulario):
 def Lemmas(vocabulario, numeroArt, lenArts):
     print("Lematizando...")
     global dic_sustantivo
+    global conTeoSust
     palabra_lemmatizada = ""
     listEscritura = []
     for word in vocabulario:
@@ -107,6 +108,7 @@ def Lemmas(vocabulario, numeroArt, lenArts):
                         else:
                             dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'][numeroArt] += 1
                             dic_sustantivo[dic_temporal[key]["Palabra"]]['Total'] += 1
+                            conTeoSust[numeroArt] += 1
                     #----------------------------
                     
                 for i in range(0,len(dic_temporal[key]["Terminaciones"])):
@@ -125,6 +127,7 @@ def Lemmas(vocabulario, numeroArt, lenArts):
                                 else:
                                     dic_sustantivo[dic_temporal[key]["Palabra"]]['Conteo'][numeroArt] += 1
                                     dic_sustantivo[dic_temporal[key]["Palabra"]]['Total'] += 1
+                                    conTeoSust[numeroArt] += 1
                             #----------------------------
                             palabra_lemmatizada = "(" + dic_temporal[key]["Palabra"]+ " | " + dic_temporal[key]["Classificiacion"] +") \n"
                             break
@@ -166,7 +169,7 @@ def deleteStopWords(vocabulario):
 file=open("generate.txt", encoding="latin-1")
 temp=file.read()
 file.close()
-
+conTeoSust = [] 
 lin = temp.split("\n")
 lin = lin[19:]
 dic_lemmas = {}
@@ -196,7 +199,10 @@ for line in lin:
                 print(x)
         
 texto = getRawCorpus('e960401.htm', 'latin-1')
-Articulos = getArticles(texto)        
+Articulos = getArticles(texto)  
+for i in range(0, len(Articulos)):
+    conTeoSust.append(0)
+      
 file=open("lemma.txt", "w")
 for i in range(0, len(Articulos)):
     listaPalabrasArt = Articulos[i].split(" ")
@@ -211,13 +217,34 @@ for key in dic_sustantivo:
     Total += dic_sustantivo[key]['Total']
 
 print(len(dic_sustantivo))
-print ("ar  w1  w2  w3  w4  w5")
+    
+print ("ar \t  inm \t arq \t int \t ast \t inf")
 for i in range (0, len(Articulos)):
-    v1 = dic_sustantivo['inmigración']['Conteo'][i]
-    v2 = dic_sustantivo['arquitectura']['Conteo'][i]
-    v3 = dic_sustantivo['internet']['Conteo'][i]
-    v4 = dic_sustantivo['astronauta']['Conteo'][i]
-    v5 = dic_sustantivo['inflación']['Conteo'][i]
-    print(i, " ",v1, " ", v2, " ", v3, " ", v4, " ", v5)
+    if (dic_sustantivo['inmigración']['Conteo'][i] > 0):
+        v1 = (dic_sustantivo['inmigración']['Conteo'][i] / conTeoSust[i]) * 100
+    else:
+        v1 = 0
+    if (dic_sustantivo['arquitectura']['Conteo'][i] > 0):
+        v2 = (dic_sustantivo['arquitectura']['Conteo'][i]/ conTeoSust[i]) * 100
+    else:
+        v2 = 0
+    if (dic_sustantivo['internet']['Conteo'][i] > 0):
+        v3 = (dic_sustantivo['internet']['Conteo'][i]/ conTeoSust[i]) * 100
+    else:
+        v3 = 0
+    if (dic_sustantivo['astronauta']['Conteo'][i] > 0):
+        v4 = (dic_sustantivo['astronauta']['Conteo'][i]/ conTeoSust[i]) * 100
+    else:
+        v4 = 0
+    if (dic_sustantivo['inflación']['Conteo'][i] > 0):
+        v5 = (dic_sustantivo['inflación']['Conteo'][i]/ conTeoSust[i]) * 100
+    else:
+        v5 = 0
+    v1 = round(v1, 2)
+    v2 = round(v2, 2)
+    v3 = round(v3, 2)
+    v4 = round(v4, 2)
+    v5 = round(v5, 2)
+    print(i, "\t",v1, "\t", v2, "\t", v3, "\t", v4, "\t", v5)
 
 

@@ -83,7 +83,6 @@ def deleteStopWords(vocabulario):
     return new_v
 
             
-
 file=open("generate.txt", encoding="latin-1")
 temp=file.read()
 file.close()
