@@ -5,13 +5,10 @@ Created on Tue Nov 13 15:11:19 2018
 
 @author: alan
 """
-#import mord as m
-from bs4 import BeautifulSoup
+import mord as m
 from xml.dom import minidom
-import time
-
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 def getRankXML(rawXML, nameXML):
-    rawXML.replace("&", "")
     try:
         xml = minidom.parseString(rawXML)
         review = xml.getElementsByTagName('review')
@@ -19,8 +16,8 @@ def getRankXML(rawXML, nameXML):
     except Exception as e:
         print("Lectura fallida en", nameXML, "--", e)
         return 0
+    
 def getLemmas(text):
-    ''' Obtiene los tokens del texto y elimina algunos caracteres'''
     lemmas = ""
     lines = text.split("\n")
     for line in lines:
@@ -38,9 +35,11 @@ def getTemcorpus(NameDoc, encode):
         f=open(NameDoc, encoding=encode)
         t=f.read()
         f.close()
-        t.replace("&", "")
+        if("xml" in NameDoc):
+            t = t.replace('&', '')
         return t
-    except: 
+    except Exception as e:
+        #print("Corpus:",NameDoc,"-", e)
         return False
 
 categories = []
@@ -56,11 +55,16 @@ for i in range(2,4280):  #4280
     if rawXML == False or rawText == False:
         fails += 1
         continue
-    
     categories.append(getRankXML(rawXML, path1))
     text.append(getLemmas(rawText))      
 
 print("Total de errores:", fails)
-#print(categories)
-#print(text)
 
+countOBJ = CountVectorizer() #ser de magia :v
+tfidfOBJ = TfidfTransformer() #ser de magia :v
+x_count = countOBJ.fit_transform(text)
+x_tdidf = tfidfOBJ.fit_transform(x_count)
+
+
+mordObj = m.LogisticIT()
+mordObj.fit(x_tdidf, categories)
