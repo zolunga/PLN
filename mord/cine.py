@@ -67,5 +67,17 @@ x_count = countOBJ.fit_transform(text)
 x_tdidf = tfidfOBJ.fit_transform(x_count)
 
 
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(
+                                   x_tdidf, np.array(categories), test_size=0.2)
+
 mordObj = m.LogisticIT()
 mordObj.fit(x_tdidf, np.array(categories))
+
+y_pred = mordObj.predict(X_test)
+
+from sklearn import metrics
+from sklearn.metrics import confusion_matrix
+print('Accuracy of prediction is', mordObj.score(X_test, y_test))
+print('Confusion matrix:\n', confusion_matrix(y_test, y_pred))
+print(metrics.classification_report(y_test, y_pred))
