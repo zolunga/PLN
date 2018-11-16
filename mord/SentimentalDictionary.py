@@ -1,5 +1,5 @@
 from xml.dom import minidom
-import time
+from bs4 import BeautifulSoup
 def getRankXML(rawXML, nameXML):
     try:
         xml = minidom.parseString(rawXML)
@@ -35,10 +35,12 @@ def getTemcorpus(NameDoc, encode):
 
 def getSentimentalDictionary():
     dict1 = {}
-    xml = minidom.parse('senticon.es.xml')
-    sentimientos = xml.getElementsByTagName('lemma')
+    xml = open('senticon.es.xml', encoding='utf-8')
+    contents = xml.read()
+    soup = BeautifulSoup(contents,'lxml')
+    sentimientos = soup.find_all('lemma')
     for i in range(0, len(sentimientos)):
-        dict1[sentimientos[i].firstChild.nodeValue] = sentimientos[i].attributes['pol'].value
+        dict1[sentimientos[i].text[1:-1]] = sentimientos[i].get('pol')
     return dict1
 
 def getSent():
@@ -46,7 +48,7 @@ def getSent():
     xml = minidom.parse('senticon.es.xml')
     sentimientos = xml.getElementsByTagName('lemma')
     for i in range(0, len(sentimientos)):
-        listS.append(str(sentimientos[i].firstChild.nodeValue))
+        listS.append(sentimientos[i].firstChild.nodeValue)
     return listS
 
 
@@ -54,13 +56,13 @@ def analizeText(Text, Dict, Keys):
     summ = 0
     for word in Text:
         if word in Keys:
-            summ += Dict[word]
+            summ += float(Dict[word])
     return summ
 
 
 sentimental_dict = getSentimentalDictionary()
 text_dict = {}
-Sents = getSent()
+Sents = list(sentimental_dict.keys())
 sumCategories = {
                 'cat1': { 'cant':0, 'suma':0},
                 'cat2': { 'cant':0, 'suma':0},
@@ -68,7 +70,7 @@ sumCategories = {
                 'cat4': { 'cant':0, 'suma':0},
                 'cat5': { 'cant':0, 'suma':0},
                 }
-for i in range(2,3):  #4280
+for i in range(2,4280):  #4280
     path1 = 'corpus/' + str(i) + '.xml'
     path2 = 'corpus/' + str(i) + '.review.pos'
     
@@ -83,17 +85,14 @@ for i in range(2,3):  #4280
                         'sum':analizeText(textRev, sentimental_dict, Sents)
                         }
     print(i)
+    
 
-for word in Sents:
-    print( str(word), "-- ósmosis")
-    if ( str('ósmosis') == str(word) ):
-        print("siufbaseiufafa")
+
 
 for key in text_dict:
     if text_dict[key]['cat'] == 0:
         continue
     cat = 'cat' + str(text_dict[key]['cat'])
-    print(text_dict[key], "---", cat)
     sumCategories[cat]['cant'] += 1
     sumCategories[cat]['suma'] += text_dict[key]['sum']
 
