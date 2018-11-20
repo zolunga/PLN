@@ -60,15 +60,15 @@ def getAllReviews():
     TemporalName2 = ""
     Temporaltext = []
     texts = {}
-    for i in range(0,2): #0, 6
-        for j in range (0, 10):  #0, 30
+    for i in range(0,6): #0, 6
+        for j in range (0, 30):  #0, 30
             TemporalName1 = "moviles/no_" + str(i) + "_" + str(j) + ".txt"
             TemporalName2 = "moviles/yes_" + str(i) + "_" + str(j) + ".txt"
             Temporaltext = getCorpus(TemporalName1, 'latin-1')
             if len(Temporaltext) > 0:
                 texts[TemporalName1[8:]] = Temporaltext
                 
-            Temporaltext = getCorpus(TemporalName2, 'latin-1') 
+            Temporaltext = getCorpus(TemporalName2, 'utf-8') 
             if len(Temporaltext) > 0:
                 texts[TemporalName2[8:]] = Temporaltext
     return texts
@@ -90,7 +90,6 @@ def lemmatizado(text, lemmas):
 
 def countNouns(texts):
     dictCount = {}
-    print(texts)
     for key in texts:
         for element in texts[key]:
             print(element)
