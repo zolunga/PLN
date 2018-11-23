@@ -140,58 +140,24 @@ def getSentimentalDictionary():
         pala=line.split("\t")
         dict1[pala[0]] = pala[len(pala)-1] 
     return dict1
+
+def word_in_sentence(text, SearchWord, sendDict):
+    Sentences_with_word = []
+    for sentence in text:
+        if SearchWord in sentence:
+            Sentences_with_word.append(sentence)
+
+    for sentence in Sentences_with_word:
+        for word in sentence:
+
+
+
     
 sentimental_dict = getSentimentalDictionary()
 textoSW = getCorpusTokens('stopwords_es.txt', 'utf-8') 
 textoReviews = getAllReviews()
 lemmas = loadLemmaDict()
-dictionaryCount = {}
-file = open('Res1.txt','w')
 for key in textoReviews:
-    print(key)
-    #print(getTopNgrams(textoReviews[key], 2, 5))
-    textoReviews[key] = cleanTokens(textoReviews[key])
-    textoReviews[key] = deleteStopWords(textoReviews[key], textoSW)
-    textoReviews[key] = lemmatizado(textoReviews[key], lemmas)
-    file.write(key)
-    file.write("-------------\n") 
-    file.write(json.dumps(textoReviews[key]))
-    file.write("-------------\n\n\n\n\n\n\n\n\n\n\n\n") 
-
-
-last = countNouns(textoReviews)
-last = sorted(last.items(), key=operator.itemgetter(1))
-file.write("------------------------conteos----------------------------")
-file.write(json.dumps(last))
-file.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    word_in_sentence(textoReviews[key])
 
 

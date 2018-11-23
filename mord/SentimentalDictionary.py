@@ -96,4 +96,7 @@ for key in text_dict:
     sumCategories[cat]['cant'] += 1
     sumCategories[cat]['suma'] += text_dict[key]['sum']
 
+for key in sumCategories:
+    prom = sumCategories[key]['suma'] / sumCategories[key]['cant']
+    print("Prom", key, ":", prom)
 print(sumCategories)
