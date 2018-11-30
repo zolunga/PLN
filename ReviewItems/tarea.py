@@ -30,4 +30,7 @@ El objetivo de Hitler era establecer un Nuevo Orden basado en la absoluta hegemo
 "
 texto = parse_document(text)
 texto = ' '.join(texto)
+print("Original: \n")
+print(text)
+print("\n\n\nResumen: \n")
 summarize_gensin(texto, 0.4)
